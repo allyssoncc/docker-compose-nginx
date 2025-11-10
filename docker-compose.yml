@@ -1,0 +1,72 @@
+services:
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - api-nodejs
+      - api-python
+    networks:
+      - app-network
+
+  api-nodejs:
+    build: ./api-nodejs
+    expose:
+      - "3000"
+    environment:
+      - PGHOST=db
+      - PGUSER=user
+      - PGPASSWORD=pass
+      - PGDATABASE=appdb
+      - PGPORT=5432
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  api-python:
+    build: ./api-python
+    expose:
+      - "8000"
+    environment:
+      - PGHOST=db
+      - PGUSER=user
+      - PGPASSWORD=pass
+      - PGDATABASE=appdb
+      - PGPORT=5432
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: appdb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d appdb -h db -p 5432"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db-data:

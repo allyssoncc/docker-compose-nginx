@@ -1,0 +1,39 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+Pipfile.lock
+
+# Docker
+**/db-data/                # volume mount folder if you accidentally created it locally
+.env
+.env.*                     # environment files
+docker-compose.override.yml
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# Build / cache
+dist/
+build/
+.cache/
+
+# GitHub Actions artifacts (if any)
+.github/actions/cache
+
+# Other
+coverage/
+*.cover
